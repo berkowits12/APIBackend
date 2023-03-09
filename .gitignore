@@ -1,0 +1,12 @@
+.env
+rough.js
+test.js
+indexCopy.js
+convertedCode.js
+data.text
+finalCode.js
+pythonCode.js
+validator.js
+/node_modules
+/routes
+/client
