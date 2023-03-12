@@ -8,18 +8,13 @@ dotenv.config({ path: "./.env" });
 const mainRouter = require("./routes/post.js");
 const { BASE_URL } = require("./utils/constants.js");
 const fectchGuest = require("./utils/fetchGuest.js");
-const createGuest = require("./createGuest.js");
+const createGuest = require("./utils/createGuest.js");
+const getListOfEmployee = require("./utils/createOppurtunityForGuest.js");
+const fetchListofEmplyees = require("./utils/fetchListofEmployees.js");
+const createOppurtunityForGuest = require("./utils/createOppurtunityForGuest.js");
+const createOppurtunityNote = require("./utils/createOppurtunityNote.js");
 app.use(express.json());
 
-// middleware
-// app.use((req, res, next) => {
-//   console.log(req.method, req.url, new Date.toTimeString());
-//   if(req.body.name == "Indra"){
-//     next();
-//   }else{
-//     res.send("Not Allowed");
-//   }
-// })
 
 const postSampleSchema = Joi.object({
   leadid: Joi.string().required(),
@@ -46,12 +41,6 @@ const postSampleSchema = Joi.object({
 
 app.get("/getData", (req, resp) => {
   console.log("data here", req.query);
-  // request(options, function(error, response){
-  //     if(error) throw new Error(error);
-  //     resp.send(response.body);
-  //     console.log(response.body);
-  // })
-  //   console.log(req.quer.branchpin);
   resp.send("RECEIVED");
 });
 
@@ -59,10 +48,8 @@ app.post("/postSample", async (req, res) => {
   const { error, value } = postSampleSchema.validate(req.body, {
     abortEarly: false,
   });
-  // const {error, value} = validateData(req.body);
   if (error) {
     console.log(error);
-    // return res.send("Invalid Request");
     return res.send(error.details);
   }
   console.log("data send", req.body);
@@ -88,6 +75,16 @@ app.post("/postSample", async (req, res) => {
   const guest_gender = req.body.gender;
   const phone_code = req.body.phone;
   const last_name = req.body.name;
+  const get_employees_url = `https://api.zenoti.com/v1/centers/${center_id}/employees`
+  // console.log(get_employees_url);
+const followup_date = new Date();
+followup_date.setDate(followup_date.getDate());
+const notes = "Added Note";
+const updated_by_id = 'FA875E55-2D4E-4737-9E7F-991EE03814A1';
+const oppurtunity_id = 'ba41032a-2ca1-4902-84a8-131f883ee48f';
+const opportunity_title = "Consultations for Skin";
+const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
+const opportunity_endpoint_notes_url = `https://api.zenoti.com/v1/opportunities/${oppurtunity_id}/notes`;
  
   // let fullUrl = `https://${ZENOTI_CONSTANTS.BASE_URL}/v1/guests/search?center_id=${center_id}&email=${guest_email}`;
 
@@ -98,7 +95,7 @@ app.post("/postSample", async (req, res) => {
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `apikey 479afeaa6c1947be99bfa1b5915e6a13c4c51cdf9686473497ceb342eafebc85`
+          "Authorization": `apikey ${process.env.JDAPIKEY}`
         }
       });
       const jsonData = await response.json();
@@ -113,7 +110,7 @@ app.post("/postSample", async (req, res) => {
           guest_list.forEach((guest, j) => {
             console.log(`${j + 1}. ${guest.personal_info.user_name} - ${guest.personal_info.first_name} ${guest.personal_info.last_name}`);
           });
-          const guest_input = parseInt(prompt("\nMultiple guests found. Select guest number: "));
+          const guest_input = parseInt(prompt("Multiple guests found. Select guest number: "));
           const guest_id = guest_list[guest_input - 1].id;
         } else {
           const guest_id = guest_list[0].id;
@@ -131,13 +128,37 @@ app.post("/postSample", async (req, res) => {
   await fetchGuestData();
   // create guest
   const [guestFirstName, guestLastName] = guest_name.split(' ');
-  const guest = await createGuest({ center_id, guest_email, guest_phone , guestFirstName, guestLastName, guest_gender, phone_code}, guest_endpoint_url);
-  console.log(guest);
+  // const createGuestResponse = await createGuest({ center_id, guest_email, guest_phone , guestFirstName, guestLastName, guest_gender, phone_code}, guest_endpoint_url);
+  // console.log("guest_id", createGuestResponse);
+  // const guest_id = createGuestResponse.guestData.id;
+  const guest_id = 'FA875E55-2D4E-4737-9E7F-991EE03814A1';
 
-  res.send({ centerId: filteredCenters[0].id, status: "SUCCESS", guest: guest });
-});
+  // getListOFEmployee
 
-const PORT = process.env.PORT | 4500;
+  const employees = await fetchListofEmplyees(center_id);
+  // JSON.parse(emplbody).employees;
+  console.log(employees.employees[0].id);
+
+  // create oppurtunity for the existing guest
+  const created_by_id = "FA875E55-2D4E-4737-9E7F-991EE03814A1";
+  const createOppurtunity = await createOppurtunityForGuest({center_id, opportunity_title,followup_date, guest_id, created_by_id }, opportunity_endpoint_url);
+  console.log(createOppurtunity);
+
+  const oppurtunity_create_notes_res = await createOppurtunityNote({notes, updated_by_id}, opportunity_endpoint_notes_url);
+  // console.log(oppurtunity_create_notes_res);
+
+  if(createOppurtunity.status === 'success' && oppurtunity_create_notes_res.status === 'success'){
+    console.log("Oppurtunity created and also notes updated");
+  }else{
+    console.log("Oppurtunity created but notes not posted");
+  }
+
+  // res.send({ centerId: filteredCenters[0].id, status: "SUCCESS", guest: guest_id });
+  res.send({ centerId: filteredCenters[0].id, guestId: guest_id, status: "SUCCESS", oppurtunity: createOppurtunity, notes:oppurtunity_create_notes_res });
+  
+})
+
+const PORT = process.env.PORT || 4500;
 // const zenotiAPIURL = `https://${BASE_URL}/v1/centers`;
 
 app.listen(PORT, () => {

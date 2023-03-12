@@ -9,7 +9,7 @@ const fetchCenters = async () => {
         method: 'GET',
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `apikey 479afeaa6c1947be99bfa1b5915e6a13c4c51cdf9686473497ceb342eafebc85`
+            "Authorization": `apikey ${process.env.JDAPIKEY}`
         }
     })
         .then(res => res.json())

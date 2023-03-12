@@ -17,7 +17,8 @@ const createGuest = async (data, guest_endpoint_url) => {
       "Content-Type": "application/json",
       "Authorization": `apikey 479afeaa6c1947be99bfa1b5915e6a13c4c51cdf9686473497ceb342eafebc85`
     };
-    console.log("lodus", guest_endpoint_url);
+    
+    console.log("guest_endpoint_url", guest_endpoint_url);
     return fetch(guest_endpoint_url, {
       method: "POST",
       headers: createGuestHeader,
