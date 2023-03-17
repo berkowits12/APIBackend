@@ -1,4 +1,4 @@
-const createOppurtunityNote = async (data, opportunity_endpoint_notes_url) => {
+const createOpportunityNote = async (data, opportunity_endpoint_notes_url) => {
     const opportunity_notes_body = JSON.stringify({
       notes: data.notes,
       updated_by_id: data.updated_by_id,
@@ -12,16 +12,16 @@ const createOppurtunityNote = async (data, opportunity_endpoint_notes_url) => {
   
     // const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
   
-      // console.log("oppurtunity:", opportunity_endpoint_url);
+      // console.log("opportunity:", opportunity_endpoint_url);
       return fetch(opportunity_endpoint_notes_url, {
         method: "POST",
         headers: opportunity_notes_header,
         body: opportunity_notes_body,
       })
-        .then(oppurtunity_note_res => oppurtunity_note_res.json())
-        .then((oppurtunity_note_res) => {
+        .then(opportunity_note_res => opportunity_note_res.json())
+        .then((opportunity_note_res) => {
           // const employees = JSON.parse(body).employees;
-          return { status: 'success', oppurtunity_note: oppurtunity_note_res };
+          return { status: 'success', opportunity_note: opportunity_note_res };
         })
         .catch((error) => {
           console.log(error);
@@ -29,4 +29,4 @@ const createOppurtunityNote = async (data, opportunity_endpoint_notes_url) => {
         });
   };
   
-module.exports = createOppurtunityNote;
+module.exports = createOpportunityNote;

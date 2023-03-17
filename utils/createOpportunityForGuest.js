@@ -4,7 +4,7 @@
 // followup_date.setDate(followup_date.getDate());
 // const opportunity_title = "Consultations for Skin";
 
-const createOppurtunityForGuest = async (data, opportunity_endpoint_url) => {
+const createOpportunityForGuest = async (data, opportunity_endpoint_url) => {
   const create_opportunity_body = JSON.stringify({
     center_id: data.center_id,
     opportunity_title: data.opportunity_title,
@@ -15,21 +15,21 @@ const createOppurtunityForGuest = async (data, opportunity_endpoint_url) => {
     
   const create_opportunity_header = {
     "Content-Type": "application/json",
-    "Authorization": `apikey 479afeaa6c1947be99bfa1b5915e6a13c4c51cdf9686473497ceb342eafebc85`
+    "Authorization": `apikey ${process.env.JDAPIKEY}`
   }
 
   // const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
 
-    // console.log("oppurtunity:", opportunity_endpoint_url);
+    // console.log("opportunity:", opportunity_endpoint_url);
     return fetch(opportunity_endpoint_url, {
       method: "POST",
       headers: create_opportunity_header,
       body: create_opportunity_body,
     })
-      .then(create_oppurtunity_res => create_oppurtunity_res.json())
-      .then((create_oppurtunity_res) => {
+      .then(create_opportunity_res => create_opportunity_res.json())
+      .then((create_opportunity_res) => {
         // const employees = JSON.parse(body).employees;
-        return { status: 'success', oppurtunity: create_oppurtunity_res };
+        return { status: 'success', opportunity: create_opportunity_res };
       })
       .catch((error) => {
         console.log(error);
@@ -37,7 +37,7 @@ const createOppurtunityForGuest = async (data, opportunity_endpoint_url) => {
       });
 };
 
-module.exports = createOppurtunityForGuest;
+module.exports = createOpportunityForGuest;
 
 // https://api.zenoti.com/v1/
 // const get_centers_url = 'https://api.zenoti.com/v1/centers';

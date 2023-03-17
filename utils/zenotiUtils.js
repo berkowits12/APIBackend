@@ -13,10 +13,14 @@ const fetchCenters = async () => {
         }
     })
         .then(res => res.json())
+        .then(res => res)
         .catch(error => {
             console.log(error);
             throw new Error(error);
         });
 }
+
+// const res = await fetchCenters();
+// console.log(res);
 
 module.exports = fetchCenters;

@@ -15,11 +15,11 @@ const createGuest = async (data, guest_endpoint_url) => {
   
     const createGuestHeader = {
       "Content-Type": "application/json",
-      "Authorization": `apikey 479afeaa6c1947be99bfa1b5915e6a13c4c51cdf9686473497ceb342eafebc85`
+      "Authorization": `apikey ${process.env.JDAPIKEY}`
     };
     
     console.log("guest_endpoint_url", guest_endpoint_url);
-    return fetch(guest_endpoint_url, {
+    return await fetch(guest_endpoint_url, {
       method: "POST",
       headers: createGuestHeader,
       body: createGuestBody,
