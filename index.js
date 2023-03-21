@@ -1,166 +1,165 @@
 const express = require("express");
 const app = express();
-const ZENOTI_CONSTANTS = require("./utils/constants.js");
 const fetchCenters = require("./utils/zenotiUtils.js");
-const Joi = require("Joi");
+const joi = require("joi");
 const dotenv = require("dotenv");
-dotenv.config({ path: "./.env" });
-const mainRouter = require("./routes/post.js");
-const { BASE_URL } = require("./utils/constants.js");
-const fectchGuest = require("./utils/fetchGuest.js");
+dotenv.config({path: "./.env"});
+const {BASE_URL} = require("./utils/constants.js");
 const createGuest = require("./utils/createGuest.js");
-const getListOfEmployee = require("./utils/createOppurtunityForGuest.js");
-const fetchListofEmplyees = require("./utils/fetchListofEmployees.js");
-const createOppurtunityForGuest = require("./utils/createOppurtunityForGuest.js");
-const createOppurtunityNote = require("./utils/createOppurtunityNote.js");
+const createOpportunityForGuest = require("./utils/createOpportunityForGuest.js");
+const createOpportunityNote = require("./utils/createOpportunityNote.js");
+const searchGuest = require("./utils/searchGuest.js");
+const verifyApiKey = require("./utils/verifyApiKey");
 app.use(express.json());
 
-
-const postSampleSchema = Joi.object({
-  leadid: Joi.string().required(),
-  leadtype: Joi.string().required(),
-  prefix: Joi.string().optional(),
-  phone: Joi.string().optional(),
-  name: Joi.string().required(),
-  mobile: Joi.number().required(),
-  email: Joi.string().email().required(),
-  date: Joi.date().required(),
-  dncmobile: Joi.number().optional(),
-  dncphone: Joi.number().optional(),
-  category: Joi.string().required(),
-  area: Joi.string().required(),
-  city: Joi.string().required(),
-  brancharea: Joi.string(),
-  company: Joi.string().equal("Berkowits Hair and Skin Clinic"),
-  pincode: Joi.string().optional(),
-  time: Joi.string(),
-  branchpin: Joi.string().required(),
-  parentid: Joi.string().optional(),
-  gender: Joi.number().optional(),
+const postSampleSchema = joi.object({
+    leadid: joi.string().required(),
+    leadtype: joi.string().required(),
+    prefix: joi.string().optional(),
+    name: joi.string().required(),
+    mobile: joi.string().length(10).pattern(/^[0-9]+$/).required(),
+    email: joi.string().email().required(),
+    date: joi.date().required(),
+    category: joi.string().required(),
+    area: joi.string().required(),
+    city: joi.string().required(),
+    brancharea: joi.string(),
+    company: joi.string().equal("Berkowits Hair and Skin Clinic"),
+    pincode: joi.string().optional(),
+    time: joi.string(),
+    branchpin: joi.string().required(),
+    parentid: joi.string().optional(),
+    gender: joi.number().optional(),
 });
+
 
 app.get("/getData", (req, resp) => {
-  console.log("data here", req.query);
-  resp.send("RECEIVED");
+    const apiKeyValidated = verifyApiKey(req.get('Authorization'));
+    if (!apiKeyValidated) {
+        return resp.status(401).send('UNAUTHORIZED');
+    }
+    console.log("data here", req.query);
+    return resp.status(200).send("RECEIVED");
 });
 
-app.post("/postSample", async (req, res) => {
-  const { error, value } = postSampleSchema.validate(req.body, {
-    abortEarly: false,
-  });
-  if (error) {
-    console.log(error);
-    return res.send(error.details);
-  }
-  console.log("data send", req.body);
-
-  const centersResponse = await fetchCenters();
-  const filteredCenters = centersResponse.centers.filter(function (ele) {
-    return ele.address_info.zip_code === req.body.branchpin;
-  });
-
-  // const center_id = filteredCenters[0].id;
-  // console.log("Center_ID: ", center_id);
-  // console.log(centersResponse);
-
-  // res.status(200).send(req.body);
-  //=======================================fetchGuest========================================
-
-  // const center_id = 'd858f57f-08fc-42ce-8e91-7550476acdb3';
-  const guest_email = req.body.email;
-  const guest_phone = req.body.phone;
-  const center_id = "960501b6-78e3-462f-9ae6-73b1cff22c8f";
-  const guest_endpoint_url = `https://${BASE_URL}/v1/guests`;
-  const guest_name = req.body.name;
-  const guest_gender = req.body.gender;
-  const phone_code = req.body.phone;
-  const last_name = req.body.name;
-  const get_employees_url = `https://api.zenoti.com/v1/centers/${center_id}/employees`
-  // console.log(get_employees_url);
-const followup_date = new Date();
-followup_date.setDate(followup_date.getDate());
-const notes = "Added Note";
-const updated_by_id = 'FA875E55-2D4E-4737-9E7F-991EE03814A1';
-const oppurtunity_id = 'ba41032a-2ca1-4902-84a8-131f883ee48f';
-const opportunity_title = "Consultations for Skin";
-const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
-const opportunity_endpoint_notes_url = `https://api.zenoti.com/v1/opportunities/${oppurtunity_id}/notes`;
- 
-  // let fullUrl = `https://${ZENOTI_CONSTANTS.BASE_URL}/v1/guests/search?center_id=${center_id}&email=${guest_email}`;
-
-
-  const fetchGuestData = async () => {
-    try {
-      const response = await fetch(`https://${ZENOTI_CONSTANTS.BASE_URL}/v1/guests/search?center_id=${center_id}&phone=${guest_phone}`, {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `apikey ${process.env.JDAPIKEY}`
-        }
-      });
-      const jsonData = await response.json();
-      // console.log(jsonData);
-  
-      const guest_search_response = jsonData;
-      console.log(guest_search_response);
-      if (guest_search_response.page_Info.total > 0) {
-        const guest_list = guest_search_response.guests;
-        if (guest_list.length > 1) {
-          console.log('List of guests');
-          guest_list.forEach((guest, j) => {
-            console.log(`${j + 1}. ${guest.personal_info.user_name} - ${guest.personal_info.first_name} ${guest.personal_info.last_name}`);
-          });
-          const guest_input = parseInt(prompt("Multiple guests found. Select guest number: "));
-          const guest_id = guest_list[guest_input - 1].id;
-        } else {
-          const guest_id = guest_list[0].id;
-          console.log("Guest found.\n","guest_id",guest_id);
-        }
-      } else {
-        console.log("Guest not found.\n\nEnter details to create the guest.");
-      }
-      
-    } catch (error) {
-      console.log(error);
+app.post("/postMiddleware", async (req, res) => {
+    const apiKeyValidated = verifyApiKey(req.get('Authorization'));
+    if (!apiKeyValidated) {
+        return res.status(401).send('UNAUTHORIZED');
     }
-  }
-  
-  await fetchGuestData();
-  // create guest
-  const [guestFirstName, guestLastName] = guest_name.split(' ');
-  // const createGuestResponse = await createGuest({ center_id, guest_email, guest_phone , guestFirstName, guestLastName, guest_gender, phone_code}, guest_endpoint_url);
-  // console.log("guest_id", createGuestResponse);
-  // const guest_id = createGuestResponse.guestData.id;
-  const guest_id = 'FA875E55-2D4E-4737-9E7F-991EE03814A1';
+    const {error, value} = postSampleSchema.validate(req.body, {
+        abortEarly: false,
+    });
 
-  // getListOFEmployee
+    if (error) {
+        return res.send(error.details);
+    }
 
-  const employees = await fetchListofEmplyees(center_id);
-  // JSON.parse(emplbody).employees;
-  console.log(employees.employees[0].id);
+    const guest_email = req.body.email;
+    const guest_phone = req.body.mobile;
+    const headOfficeCenterId = "960501b6-78e3-462f-9ae6-73b1cff22c8f";
+    const guest_endpoint_url = `https://${BASE_URL}/v1/guests`;
+    const guest_name = req.body.name;
+    const guest_gender = req.body.gender;
+    const get_employees_url = `https://api.zenoti.com/v1/centers/${headOfficeCenterId}/employees`;
+    const followup_date = req.body.date;
+    const notes = req.body.category;
+    const mainEmployeeId = "912a8fd8-35fc-47ce-b517-d8221ff74803";
+    const opportunity_title = "Just Dial";
+    const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
+    try {
+        // search guest in all the existing centers
+        const centersResponseData = await fetchCenters();
+        const centers = centersResponseData.centers;
 
-  // create oppurtunity for the existing guest
-  const created_by_id = "FA875E55-2D4E-4737-9E7F-991EE03814A1";
-  const createOppurtunity = await createOppurtunityForGuest({center_id, opportunity_title,followup_date, guest_id, created_by_id }, opportunity_endpoint_url);
-  console.log(createOppurtunity);
+        let guestData;
 
-  const oppurtunity_create_notes_res = await createOppurtunityNote({notes, updated_by_id}, opportunity_endpoint_notes_url);
-  // console.log(oppurtunity_create_notes_res);
+        for (let i = 0; i < centers.length; i++) {
+            const searchResult = await searchGuest(centers[i].id, guest_phone);
+            if (searchResult.page_Info.total > 0) {
+                guestData = searchResult.guests[0];
+                break;
+            }
+        }
+        ;
 
-  if(createOppurtunity.status === 'success' && oppurtunity_create_notes_res.status === 'success'){
-    console.log("Oppurtunity created and also notes updated");
-  }else{
-    console.log("Oppurtunity created but notes not posted");
-  }
+        if (guestData) {
+            const guestId = guestData.id;
+            console.log("Guest found and", "guest_id is :", guestId);
+            const createOpportunity = await createOpportunityForGuest(
+                {
+                    center_id: headOfficeCenterId,
+                    opportunity_title,
+                    followup_date: new Date().toISOString().substring(0, 10),
+                    guest_id: guestId,
+                    created_by_id: mainEmployeeId,
+                },
+                opportunity_endpoint_url
+            );
+            // Add notes on created opportunity
+            if (createOpportunity.status === "success") {
+                const opportunity_endpoint_notes_url = `https://api.zenoti.com/v1/opportunities/${createOpportunity.opportunity.opportunity_id}/notes`
+                const opportunity_create_notes_res = await createOpportunityNote(
+                    {notes, mainEmployeeId},
+                    opportunity_endpoint_notes_url
+                );
+                if (opportunity_create_notes_res.status === "success") {
+                    console.log("Opportunity created and also notes updated");
+                } else {
+                    console.log("Opportunity created but notes not posted");
+                }
+            }
+        } else {
+            // Guest not Found, create guest then create opportunity
+            const guestFirstName = guest_name.split(" ").slice(0, -1).join(' ');
+            const guestLastName = guest_name.split(" ").slice(-1).join(' ');
+            const createGuestResponse = await createGuest(
+                {
+                    center_id: headOfficeCenterId,
+                    guest_email,
+                    guest_phone,
+                    guestFirstName,
+                    guestLastName,
+                    guest_gender,
+                },
+                guest_endpoint_url
+            );
 
-  // res.send({ centerId: filteredCenters[0].id, status: "SUCCESS", guest: guest_id });
-  res.send({ centerId: filteredCenters[0].id, guestId: guest_id, status: "SUCCESS", oppurtunity: createOppurtunity, notes:oppurtunity_create_notes_res });
-  
-})
+            const guestId = createGuestResponse.guestData.id;
+            console.log("Guest id is:", guestId);
+            const createOpportunity = await createOpportunityForGuest(
+                {
+                    center_id: headOfficeCenterId,
+                    opportunity_title,
+                    followup_date: new Date().toISOString().substring(0, 10),
+                    guest_id: guestId,
+                    created_by_id: mainEmployeeId,
+                },
+                opportunity_endpoint_url
+            );
+            // Add notes on created opportunity
+            if (createOpportunity.status === "success") {
+                const opportunity_endpoint_notes_url = `https://api.zenoti.com/v1/opportunities/${createOpportunity.opportunity.opportunity_id}/notes`
+                const opportunity_create_notes_res = await createOpportunityNote(
+                    {notes, mainEmployeeId},
+                    opportunity_endpoint_notes_url
+                );
+                if (opportunity_create_notes_res.status === "success") {
+                    console.log("Opportunity created and also notes updated");
+                } else {
+                    console.log("Opportunity created but notes not posted");
+                }
+            }
+        }
+    } catch (error) {
+        return res.send("FAILURE");
+        console.log(error);
+    }
+    res.send("SUCCESS");
+});
 
 const PORT = process.env.PORT || 4500;
-// const zenotiAPIURL = `https://${BASE_URL}/v1/centers`;
 
 app.listen(PORT, () => {
-  console.log("Listening on port:", PORT);
+    console.log("Listening on port:", PORT);
 });

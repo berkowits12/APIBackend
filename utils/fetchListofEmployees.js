@@ -2,7 +2,7 @@ const ZENOTI_CONSTANTS = require('./constants');
 
 /**
  * Fetches all list of employees from zenoti
- * @returns centers
+ * @returns ListOFEmployee
  */
 const fetchListofEmployees = async (center_id) => {
     return await fetch(`https://${ZENOTI_CONSTANTS.BASE_URL}/v1/centers/${center_id}/employees`, {

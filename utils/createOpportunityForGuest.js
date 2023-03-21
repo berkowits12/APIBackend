@@ -1,9 +1,3 @@
-// const get_employees_url = `https://api.zenoti.com/v1/centers/${center_id}/employees`;
-
-// const followup_date = new Date();
-// followup_date.setDate(followup_date.getDate());
-// const opportunity_title = "Consultations for Skin";
-
 const createOpportunityForGuest = async (data, opportunity_endpoint_url) => {
   const create_opportunity_body = JSON.stringify({
     center_id: data.center_id,
@@ -18,9 +12,6 @@ const createOpportunityForGuest = async (data, opportunity_endpoint_url) => {
     "Authorization": `apikey ${process.env.JDAPIKEY}`
   }
 
-  // const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
-
-    // console.log("opportunity:", opportunity_endpoint_url);
     return fetch(opportunity_endpoint_url, {
       method: "POST",
       headers: create_opportunity_header,
@@ -38,10 +29,4 @@ const createOpportunityForGuest = async (data, opportunity_endpoint_url) => {
 };
 
 module.exports = createOpportunityForGuest;
-
-// https://api.zenoti.com/v1/
-// const get_centers_url = 'https://api.zenoti.com/v1/centers';
-
-
-// const get_employees_url = `${get_centers_url}/${center_id}/employees`;
 

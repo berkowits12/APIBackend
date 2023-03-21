@@ -9,10 +9,6 @@ const createOpportunityNote = async (data, opportunity_endpoint_notes_url) => {
       "Content-Type": "application/json",
       "Authorization": `apikey ${process.env.JDAPIKEY}`
     }
-  
-    // const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
-  
-      // console.log("opportunity:", opportunity_endpoint_url);
       return fetch(opportunity_endpoint_notes_url, {
         method: "POST",
         headers: opportunity_notes_header,
