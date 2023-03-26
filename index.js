@@ -9,7 +9,7 @@ const createGuest = require("./utils/createGuest.js");
 const createOpportunityForGuest = require("./utils/createOpportunityForGuest.js");
 const createOpportunityNote = require("./utils/createOpportunityNote.js");
 const searchGuest = require("./utils/searchGuest.js");
-const verifyApiKey = require("./utils/verifyApiKey");
+const verifyApiKey = require("./utils/verifyAPIKey.js");
 app.use(express.json());
 
 const postSampleSchema = joi.object({
