@@ -1,3 +1,4 @@
+const fetch = require("node-fetch");
 const ZENOTI_CONSTANTS = require('./constants');
 
 const searchGuest = async (centerId, phone) => {

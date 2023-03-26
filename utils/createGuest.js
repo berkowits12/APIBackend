@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 const createGuest = async (data, guest_endpoint_url) => {
     const createGuestBody = JSON.stringify({
       center_id: data.center_id,
@@ -19,6 +21,7 @@ const createGuest = async (data, guest_endpoint_url) => {
     };
     
     console.log("guest_endpoint_url", guest_endpoint_url);
+    
     return await fetch(guest_endpoint_url, {
       method: "POST",
       headers: createGuestHeader,

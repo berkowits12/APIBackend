@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 const createOpportunityNote = async (data, opportunity_endpoint_notes_url) => {
     const opportunity_notes_body = JSON.stringify({
       notes: data.notes,

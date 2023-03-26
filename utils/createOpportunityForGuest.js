@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 const createOpportunityForGuest = async (data, opportunity_endpoint_url) => {
   const create_opportunity_body = JSON.stringify({
     center_id: data.center_id,
