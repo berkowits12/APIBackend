@@ -152,8 +152,7 @@ app.post("/postMiddleware", async (req, res) => {
             }
         }
     } catch (error) {
-        return res.send("FAILURE");
-        console.log(error);
+        return res.send({ "res": "FAILURE", "cause": error, "message": error.message });
     }
     res.send("SUCCESS");
 });
