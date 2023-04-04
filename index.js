@@ -111,8 +111,11 @@ app.post("/postMiddleware", async (req, res) => {
             }
         } else {
             // Guest not Found, create guest then create opportunity
-            const guestFirstName = guest_name.split(" ").slice(0, -1).join(' ');
-            const guestLastName = guest_name.split(" ").slice(-1).join(' ');
+            let guestFirstName = guest_name.split(" ").slice(0, -1).join(' ');
+            let guestLastName = guest_name.split(" ").slice(-1).join(' ');
+            if(guestFirstName == ""){
+                guestFirstName = guestLastName;
+            }
             const createGuestResponse = await createGuest(
                 {
                     center_id: headOfficeCenterId,
