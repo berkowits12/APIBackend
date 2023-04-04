@@ -18,7 +18,7 @@ const postSampleSchema = joi.object({
     prefix: joi.string().optional(),
     name: joi.string().required(),
     mobile: joi.string().length(10).pattern(/^[0-9]+$/).required(),
-    email: joi.string().email().optional(),
+    email: joi.string().optional(),
     date: joi.date().required(),
     category: joi.string().required(),
     area: joi.string().required(),
