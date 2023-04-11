@@ -63,10 +63,12 @@ app.post("/postMiddleware", async (req, res) => {
     const guest_gender = req.body.gender;
     const get_employees_url = `https://api.zenoti.com/v1/centers/${headOfficeCenterId}/employees`;
     const followup_date = req.body.date;
-    const notes = req.body.category;
+    const notes = req.body.city + " " + req.body.category;
     const mainEmployeeId = "912a8fd8-35fc-47ce-b517-d8221ff74803";
     const opportunity_title = "Just Dial";
+    const opportunity_description = req.body.category + " " + req.body.area + "" + req.body.city;
     const opportunity_endpoint_url = `https://api.zenoti.com/v1/opportunities`;
+    
     try {
         // search guest in all the existing centers
         const centersResponseData = await fetchCenters();
@@ -90,6 +92,7 @@ app.post("/postMiddleware", async (req, res) => {
                 {
                     center_id: headOfficeCenterId,
                     opportunity_title,
+                    opportunity_description,
                     followup_date: new Date().toISOString().substring(0, 10),
                     guest_id: guestId,
                     created_by_id: mainEmployeeId,
@@ -134,6 +137,7 @@ app.post("/postMiddleware", async (req, res) => {
                 {
                     center_id: headOfficeCenterId,
                     opportunity_title,
+                    opportunity_description,
                     followup_date: new Date().toISOString().substring(0, 10),
                     guest_id: guestId,
                     created_by_id: mainEmployeeId,

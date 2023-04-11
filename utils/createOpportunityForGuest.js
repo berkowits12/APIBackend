@@ -4,6 +4,7 @@ const createOpportunityForGuest = async (data, opportunity_endpoint_url) => {
   const create_opportunity_body = JSON.stringify({
     center_id: data.center_id,
     opportunity_title: data.opportunity_title,
+    opportunity_description: data.opportunity_description,
     guest_id: data.guest_id,
     created_by_id: data.created_by_id,
     followup_date: data.followup_date
