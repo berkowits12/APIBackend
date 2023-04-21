@@ -15,7 +15,7 @@ app.use(express.json());
 const postSampleSchema = joi.object({
     leadid: joi.string().required(),
     leadtype: joi.string().required(),
-    prefix: joi.string().optional(),
+    prefix: joi.string().allow(null, ''),
     name: joi.string().required(),
     mobile: joi.string().length(10).pattern(/^[0-9]+$/).required(),
     email: joi.string().allow(null, ''),
