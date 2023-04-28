@@ -30,6 +30,10 @@ const postSampleSchema = joi.object({
     branchpin: joi.string().required(),
     parentid: joi.string().optional(),
     gender: joi.number().optional(),
+    phone: joi.string().allow(null, ''),
+    dncmobile: joi.number().empty("").allow(null),
+    dncphone: joi.number().empty("").allow(null),
+
 });
 
 
