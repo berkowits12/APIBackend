@@ -10,3 +10,4 @@ validator.js
 /node_modules
 /routes
 /client
+server.js
